@@ -628,6 +628,7 @@ void cb_dl_progress(const char *filename, off_t file_xfered, off_t file_total)
 	static double rate_last;
 	static off_t xfered_last;
 	static int64_t initial_time = 0;
+	static char *filename_last = NULL;
 	int infolen;
 	int filenamelen;
 	char *fname, *p;
@@ -646,7 +647,11 @@ void cb_dl_progress(const char *filename, off_t file_xfered, off_t file_total)
 	const unsigned short cols = getcols();
 
 	if(config->noprogressbar || cols == 0 || file_total == -1) {
-		if(file_xfered == 0) {
+		if(filename_last != NULL || strcmp(filename_last, filename) != 0) {
+			if(filename_last != NULL) {
+				free(filename_last);
+			}
+			filename_last = strdup(filename);
 			printf(_("downloading %s...\n"), filename);
 			fflush(stdout);
 		}
