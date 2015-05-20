@@ -238,6 +238,11 @@ void cb_event(alpm_event_t *event)
 				printf(_("loading package files...\n"));
 			}
 			break;
+		case ALPM_EVENT_PKGDOWNLOAD_START:
+			if(config->noprogressbar) {
+				printf(_("downloading %s...\n"), event->file);
+			}
+			break;
 		case ALPM_EVENT_DELTA_INTEGRITY_START:
 			printf(_("checking delta integrity...\n"));
 			break;
@@ -329,8 +334,6 @@ void cb_event(alpm_event_t *event)
 		case ALPM_EVENT_DISKSPACE_DONE:
 		case ALPM_EVENT_RETRIEVE_DONE:
 		case ALPM_EVENT_RETRIEVE_FAILED:
-		/* we can safely ignore those as well */
-		case ALPM_EVENT_PKGDOWNLOAD_START:
 		case ALPM_EVENT_PKGDOWNLOAD_DONE:
 		case ALPM_EVENT_PKGDOWNLOAD_FAILED:
 			/* nothing */
@@ -645,7 +648,11 @@ void cb_dl_progress(const char *filename, off_t file_xfered, off_t file_total)
 
 	const unsigned short cols = getcols();
 
-	if(config->noprogressbar || cols == 0 || file_total == -1) {
+	if(config->noprogressbar) {
+		return;
+	}
+
+	if(cols == 0 || file_total == -1) {
 		if(file_xfered == 0) {
 			printf(_("downloading %s...\n"), filename);
 			fflush(stdout);
